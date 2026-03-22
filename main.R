@@ -108,7 +108,7 @@ lrpsadmm <- function(Sigma, lambda.1, lambda.2,init=NULL,maxiter=100, mu=1, abs.
     U <- UpdateU(A, S, L, U, mu)
     
     # Diagnostics
-    objval <- obj.func(Sigma, A, S, L, lambda.1, lambda.2)
+    objval <- obj.func(Sigma, A, S, L)
     r.norm <- norm(A - (S-L), 'F')
     history <- rbind(history, c(i,objval,r.norm))
     
@@ -125,17 +125,14 @@ lrpsadmm <- function(Sigma, lambda.1, lambda.2,init=NULL,maxiter=100, mu=1, abs.
 }
 
 # ------------------------------
-# Objective function for LVGGM
-obj.func <- function(Sigma, A, S, L, l1, l2) {
+# loglik function for LVGGM
+obj.func <- function(Sigma, A, S, L) {
   evals <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
-  evals[abs(evals) < 1e-09] <- 1e-8
-  
+  evals[abs(evals) < 1e-09] <- 1e-8  
   if (any(evals < 0)) {
     return(NaN)
-  }
-  
+  }  
   ll <- sum(diag(Sigma %*% A)) - sum(log(evals))
-  ll <- ll + l1 * sum(abs(S)) + l2 * sum(diag(L))
   return(ll)
 }
 
